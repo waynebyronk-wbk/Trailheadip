@@ -1,0 +1,22 @@
+name: Build & Release Kit
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build PDF
+        uses: baileyjm02/markdown-to-pdf@v1
+        with:
+          input_path: Kit.md
+          output_path: dist/trailheadip-kit.pdf
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          files: dist/trailheadip-kit.pdf
