@@ -1,0 +1,36 @@
+name: Generate DMCA Takedown
+on:
+  workflow_dispatch:
+    inputs:
+      infringing_url:
+        description: 'URL of the infringing content'
+        required: true
+      original_url:
+        description: 'URL of your original content'
+        required: true
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate DMCA Notice
+        run: |
+          mkdir -p dmca-notice
+          cat > dmca-notice/DMCA_Takedown_${{ github.run_id }}.txt << 'EOF'
+          DMCA Takedown Notice
+          
+          Infringing URL: ${{ github.event.inputs.infringing_url }}
+          Original URL: ${{ github.event.inputs.original_url }}
+          
+          I have a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.
+          
+          I swear, under penalty of perjury, that the information in this notification is accurate and that I am the copyright owner or am authorized to act on behalf of the owner.
+          
+          Signed,
+          Wayne Byron
+          Date: $(date)
+          EOF
+      - name: Upload DMCA
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmca-takedown
+          path: dmca-notice/
