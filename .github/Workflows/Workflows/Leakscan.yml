@@ -1,0 +1,24 @@
+name: Daily Leak Scan
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Search GitHub
+        id: search
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RESULTS=$(gh search code "TrailheadIP" --json repository | jq length)
+          echo "leaks=$RESULTS" >> $GITHUB_OUTPUT
+      - name: Open Issue if found
+        if: steps.search.outputs.leaks > 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "Leak detected: ${{ steps.search.outputs.leaks }} hits" --body "Daily scan found matches. Review and run DMCA workflow."
