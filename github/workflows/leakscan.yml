@@ -1,0 +1,24 @@
+name: Daily Leak Scan
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run leak scan
+        run: |
+          echo "Scanning for leaks..."
+          # Add your search commands here
+          # Example: grep -r "YOUR_SECRET" . && exit 1 || echo "Clean"
+      - name: Create issue if leak found
+        if: failure()
+        uses: dacbd/create-issue-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Leak detected by Daily Scan
+          body: Leak scan failed. Check the Action logs for details.
